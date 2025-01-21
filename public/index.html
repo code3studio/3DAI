@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Renderly: Premier Text-to-3D Agent (Dark/Futuristic UI)</title>
+  
+  <!-- Google Fonts: a subtle monospaced style -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" 
+    rel="stylesheet">
+  
+  <!-- model-viewer: for displaying GLB files -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  
+  <style>
+    /* 
+      OVERALL APP STYLE:
+      - Dark background
+      - Neutral grayscale
+      - Techy/futuristic monospaced font
+    */
+    * {
+      box-sizing: border-box; /* Ensures padding and border are included in element's total width and height */
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      overflow-x: hidden; /* Prevent horizontal scrolling */
+    }
+
+    body {
+      background: #0d0d0d; /* Very dark gray */
+      color: #ccc;         /* Light gray text */
+      font-family: 'Share Tech Mono', monospace;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header Styling */
+    header {
+      width: 100%;
+      background: #1a1a1a;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #333;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+
+    header .logo {
+      font-size: 1.5em;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    header .social-links a {
+      margin-left: 15px;
+      color: #ccc;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: color 0.3s;
+    }
+
+    header .social-links a:hover {
+      color: #fff;
+    }
+
+    /* SVG Icon Styling - Left Blank for Future Customization */
+    .social-icon {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    /* Container to center the content */
+    #app-container {
+      flex: 1;
+      max-width: 700px;
+      margin: 100px auto 30px auto; /* Adjusted top margin to prevent overlap with fixed header */
+      padding: 20px;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      border: 1px solid #333;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.8), 
+                  0 0 20px rgba(0,0,0,0.6) inset;
+      overflow: hidden; /* Prevent child elements from overflowing */
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: normal;
+      color: #aaa;
+      word-wrap: break-word;
+    }
+
+    input, select, button {
+      width: 100%;
+      margin-bottom: 16px;
+      padding: 10px;
+      background: #1c1c1c;
+      color: #ccc;
+      border: 1px solid #333;
+      border-radius: 4px;
+      font-family: inherit;
+      outline: none;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    input::placeholder {
+      color: #666;
+    }
+
+    input:focus, select:focus {
+      border-color: #666;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: bold;
+      text-transform: uppercase;
+      white-space: nowrap; /* Prevent text from wrapping */
+      overflow: hidden; /* Hide overflow text */
+      text-overflow: ellipsis; /* Show ellipsis for overflow text */
+    }
+
+    button:hover {
+      background: #2a2a2a;
+    }
+
+    /* Preview & Refine Box Styles */
+    .preview, .refine {
+      margin-top: 20px;
+      padding: 20px;
+      background: #141414;
+      border: 1px solid #333;
+      border-radius: 6px;
+      overflow: hidden; /* Prevent child elements from overflowing */
+    }
+
+    /* Image & Model Viewer Styling */
+    #previewThumbnail, 
+    #refinedModelViewer {
+      display: none;
+      margin-top: 12px;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #333;
+      background: #111;
+      border-radius: 4px;
+    }
+
+    model-viewer {
+      /* Ensure model is visible even on dark background */
+      background-color: #111;
+      width: 100%;
+      height: 400px;
+    }
+
+    /* Buttons for downloads, refine, etc. */
+    #downloadPreviewBtn,
+    #refineBtn,
+    #downloadRefineBtn {
+      display: none; /* Shown dynamically */
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 0.9em;
+      letter-spacing: 1px;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Footer Styling */
+    footer {
+      width: 100%;
+      background: #1a1a1a;
+      padding: 15px 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-top: 1px solid #333;
+      box-shadow: 0 -2px 4px rgba(0,0,0,0.5);
+    }
+
+    footer .copy-button {
+      width: 100%;
+      max-width: 300px;
+      padding: 10px 20px;
+      background: #2a2a2a;
+      color: #ccc;
+      border: 1px solid #444;
+      border-radius: 4px;
+      font-size: 0.9em;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.3s, border-color 0.3s;
+      margin-bottom: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    footer .copy-button:hover {
+      background: #3a3a3a;
+    }
+
+    footer .info-text {
+      color: #aaa;
+      font-size: 0.85em;
+      text-align: center;
+      max-width: 500px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 600px) {
+      header, footer {
+        padding: 10px 20px;
+      }
+
+      #app-container {
+        margin: 100px 10px 30px 10px; /* Adjusted for smaller screens */
+      }
+
+      .copy-button {
+        max-width: 100%;
+      }
+
+      model-viewer {
+        height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Section -->
+  <header>
+    <div class="logo">Renderly</div>
+    <div class="social-links">
+      <!-- Twitter Link - SVG Left Blank -->
+      <a href="https://twitter.com/yourtwitter" target="_blank" aria-label="Twitter">
+        <!-- Twitter SVG Icon Placeholder -->
+        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <!-- Placeholder Path -->
+          <path d=""></path>
+        </svg>
+      </a>
+      <!-- Telegram Link - SVG Left Blank -->
+      <a href="https://t.me/yourtelegram" target="_blank" aria-label="Telegram">
+        <!-- Telegram SVG Icon Placeholder -->
+        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <!-- Placeholder Path -->
+          <path d=""></path>
+        </svg>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main App Container -->
+  <div id="app-container">
+    <h1>Renderly: Premier Text-to-3D Agent</h1>
+
+    <!-- Prompt Inputs -->
+    <div>
+      <label for="promptInput">Prompt:</label>
+      <input 
+        id="promptInput" 
+        type="text" 
+        placeholder="e.g. 'blue frog with dots'" 
+        value="blue frog with dots" 
+      />
+
+      <label for="artStyleSelect">Art style (optional):</label>
+      <select id="artStyleSelect">
+        <option value="">(none)</option>
+        <option value="realistic" selected>realistic</option>
+        <option value="sculpture">sculpture</option>
+      </select>
+
+      <label for="remeshSelect">Remesh?</label>
+      <select id="remeshSelect">
+        <option value="true" selected>Yes</option>
+        <option value="false">No</option>
+      </select>
+
+      <button id="createPreviewBtn">Create Preview</button>
+    </div>
+
+    <!-- Preview Stage Section -->
+    <div id="previewSection" class="preview" style="display: none;">
+      <h2>Preview Stage</h2>
+      <p>Task ID: <span id="previewTaskId"></span></p>
+      <p>Status: <span id="previewStatus"></span></p>
+
+      <!-- Show the preview thumbnail if available -->
+      <img id="previewThumbnail" alt="preview thumbnail" />
+
+      <!-- Download the untextured preview .glb -->
+      <button id="downloadPreviewBtn">Download Preview</button>
+
+      <!-- Button to refine after preview completes -->
+      <button id="refineBtn" disabled>Refine (Apply Texture)</button>
+    </div>
+
+    <!-- Refine Stage Section -->
+    <div id="refineSection" class="refine" style="display: none;">
+      <h2>Refine Stage</h2>
+      <p>Task ID: <span id="refineTaskId"></span></p>
+      <p>Status: <span id="refineStatus"></span></p>
+
+      <!-- 3D Viewer for the final textured model -->
+      <model-viewer
+        id="refinedModelViewer"
+        camera-controls
+        auto-rotate
+        crossorigin="anonymous">
+      </model-viewer>
+
+      <!-- Button to download the final .glb -->
+      <button id="downloadRefineBtn">Download Refined Model</button>
+    </div>
+  </div>
+
+  <!-- Footer Section -->
+  <footer>
+    <button class="copy-button" id="copyPumpBtn">ca: comingsoon..........pump</button>
+    <div class="info-text">
+      This is the Renderly demo. Advanced features will be exclusive to qualifying holders.
+    </div>
+  </footer>
+
+  <script>
+    // ============ DOM ELEMENTS ============
+    const previewSection      = document.getElementById('previewSection');
+    const previewTaskIdEl     = document.getElementById('previewTaskId');
+    const previewStatusEl     = document.getElementById('previewStatus');
+    const previewThumbnailEl  = document.getElementById('previewThumbnail');
+    const downloadPreviewBtn  = document.getElementById('downloadPreviewBtn');
+    const refineBtn           = document.getElementById('refineBtn');
+
+    const refineSection       = document.getElementById('refineSection');
+    const refineTaskIdEl      = document.getElementById('refineTaskId');
+    const refineStatusEl      = document.getElementById('refineStatus');
+    const refinedModelViewer  = document.getElementById('refinedModelViewer');
+    const downloadRefineBtn   = document.getElementById('downloadRefineBtn');
+
+    const copyPumpBtn         = document.getElementById('copyPumpBtn');
+
+    // Global Task IDs
+    let previewTaskId = null;
+    let refineTaskId  = null;
+
+    // Poll timers
+    let previewPollInterval = null;
+    let refinePollInterval  = null;
+
+    // ============ EVENT: CREATE PREVIEW ============
+    document.getElementById('createPreviewBtn').addEventListener('click', async () => {
+      resetUI(); // Clear out any old tasks
+
+      const prompt = document.getElementById('promptInput').value.trim();
+      const art_style = document.getElementById('artStyleSelect').value;
+      const should_remesh = (document.getElementById('remeshSelect').value === 'true');
+
+      if (!prompt) {
+        alert('Please enter a prompt to generate a 3D model.');
+        return;
+      }
+
+      console.log('Creating preview with prompt:', prompt);
+      console.log('Art style:', art_style);
+      console.log('Should remesh:', should_remesh);
+
+      // Call /api/preview
+      const resp = await fetch('/api/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, art_style, should_remesh })
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json();
+        if (resp.status === 429) {
+          alert(err.error); // "Maximum concurrent tasks reached..."
+        } else {
+          alert('Failed to create preview task: ' + JSON.stringify(err));
+        }
+        console.error('Preview creation failed:', err);
+        return;
+      }
+
+      const data = await resp.json(); // { result: "preview_task_id" }
+      previewTaskId = data.result;
+      console.log('Preview Task ID:', previewTaskId);
+
+      // Show preview section
+      previewSection.style.display = 'block';
+      previewTaskIdEl.textContent = previewTaskId;
+      previewStatusEl.textContent = 'PENDING';
+
+      // Start polling the preview
+      previewPollInterval = setInterval(pollPreviewTask, 4000);
+    });
+
+    // ============ POLL PREVIEW TASK ============
+    async function pollPreviewTask() {
+      if (!previewTaskId) return;
+
+      console.log('Polling preview task ID:', previewTaskId);
+
+      const resp = await fetch(`/api/task/${previewTaskId}`);
+      if (!resp.ok) {
+        console.error('Error polling preview task:', resp.statusText);
+        return;
+      }
+
+      const data = await resp.json();
+      previewStatusEl.textContent = `${data.status} (progress: ${data.progress}%)`;
+
+      console.log('Preview task status:', data.status);
+
+      if (data.status === 'SUCCEEDED') {
+        clearInterval(previewPollInterval);
+        previewStatusEl.textContent = 'SUCCEEDED';
+
+        // If there's a thumbnail, show it
+        if (data.thumbnail_url) {
+          previewThumbnailEl.src = data.thumbnail_url;
+          previewThumbnailEl.style.display = 'block';
+          console.log('Thumbnail URL:', data.thumbnail_url);
+        } else {
+          console.warn('No thumbnail URL found for the preview.');
+        }
+
+        // Show "Download Preview" button
+        downloadPreviewBtn.style.display = 'inline-block';
+        downloadPreviewBtn.onclick = () => downloadModel(previewTaskId, 'preview');
+        console.log('Download Preview button is now visible.');
+
+        // Enable refine button
+        refineBtn.disabled = false;
+        refineBtn.style.display = 'inline-block';
+        refineBtn.onclick = createRefineTask;
+        console.log('Refine button is now visible and enabled.');
+      } else if (data.status === 'FAILED') {
+        clearInterval(previewPollInterval);
+        alert('Preview task failed: ' + (data.task_error?.message || 'Unknown error'));
+        console.error('Preview task failed:', data.task_error);
+      }
+    }
+
+    // ============ CREATE REFINE TASK ============
+    async function createRefineTask() {
+      if (!previewTaskId) {
+        alert('No preview task available to refine.');
+        return;
+      }
+
+      // Default to true for PBR
+      const enablePbr = true;
+
+      // Disable the refine button to prevent multiple clicks
+      refineBtn.disabled = true;
+      refineBtn.textContent = 'Refining...';
+      console.log('Creating refine task...');
+
+      const resp = await fetch('/api/refine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ preview_task_id: previewTaskId, enable_pbr: enablePbr })
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json();
+        alert('Failed to create refine task: ' + JSON.stringify(err));
+        console.error('Refine task creation failed:', err);
+        refineBtn.disabled = false;
+        refineBtn.textContent = 'Refine (Apply Texture)';
+        return;
+      }
+
+      const data = await resp.json(); // { result: "refine_task_id" }
+      refineTaskId = data.result;
+      console.log('Refine Task ID:', refineTaskId);
+
+      // Show refine section
+      refineSection.style.display = 'block';
+      refineTaskIdEl.textContent = refineTaskId;
+      refineStatusEl.textContent = 'PENDING';
+
+      // Start polling refine
+      refinePollInterval = setInterval(pollRefineTask, 4000);
+    }
+
+    // ============ POLL REFINE TASK ============
+    async function pollRefineTask() {
+      if (!refineTaskId) return;
+
+      console.log('Polling refine task ID:', refineTaskId);
+
+      const resp = await fetch(`/api/task/${refineTaskId}`);
+      if (!resp.ok) {
+        console.error('Error polling refine task:', resp.statusText);
+        return;
+      }
+
+      const data = await resp.json();
+      refineStatusEl.textContent = `${data.status} (progress: ${data.progress}%)`;
+
+      console.log('Refine task status:', data.status);
+
+      if (data.status === 'SUCCEEDED') {
+        clearInterval(refinePollInterval);
+        refineStatusEl.textContent = 'SUCCEEDED';
+
+        // Show final textured model
+        if (data.model_urls && data.model_urls.glb) {
+          refinedModelViewer.src = data.model_urls.glb;
+          refinedModelViewer.style.display = 'block';
+          console.log('Refined GLB URL:', data.model_urls.glb);
+        } else {
+          alert('No GLB found for the refined model!');
+          console.warn('No GLB URL found in the refine task data.');
+        }
+
+        // Show "Download Refined Model" button
+        downloadRefineBtn.style.display = 'inline-block';
+        downloadRefineBtn.onclick = () => downloadModel(refineTaskId, 'refined');
+        console.log('Download Refined Model button is now visible.');
+      }
+      else if (data.status === 'FAILED') {
+        clearInterval(refinePollInterval);
+        alert('Refine task failed: ' + (data.task_error?.message || 'Unknown error'));
+        console.error('Refine task failed:', data.task_error);
+      }
+    }
+
+    // ============ DOWNLOAD MODEL ============
+    async function downloadModel(taskId, type) {
+      console.log(`Downloading ${type} model for task ID: ${taskId}`);
+      const resp = await fetch(`/api/download/${taskId}`);
+      if (!resp.ok) {
+        alert('Failed to download model');
+        console.error('Download failed:', resp.statusText);
+        return;
+      }
+
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+
+      // Auto-trigger file download
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${type || 'model'}-${taskId}.glb`;
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup
+      a.remove();
+      URL.revokeObjectURL(url);
+      console.log(`${type} model downloaded successfully.`);
+    }
+
+    // ============ COPY BUTTON FUNCTIONALITY ============
+    copyPumpBtn.addEventListener('click', () => {
+      const textToCopy = 'ca: comingsoon..........pump';
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        alert('Copied to clipboard!');
+        console.log('Copied to clipboard:', textToCopy);
+      }).catch(err => {
+        console.error('Failed to copy: ', err);
+        alert('Failed to copy text.');
+      });
+    });
+
+    // ============ RESET UI ============
+    function resetUI() {
+      console.log('Resetting UI...');
+      // Stop any polling
+      clearInterval(previewPollInterval);
+      clearInterval(refinePollInterval);
+
+      previewTaskId = null;
+      refineTaskId  = null;
+
+      // Hide & reset preview
+      previewSection.style.display      = 'none';
+      previewThumbnailEl.style.display = 'none';
+      previewThumbnailEl.src           = '';
+      previewStatusEl.textContent      = '';
+      downloadPreviewBtn.style.display = 'none';
+      refineBtn.disabled               = true;
+      refineBtn.textContent            = 'Refine (Apply Texture)';
+      refineBtn.style.display          = 'none';
+
+      // Hide & reset refine
+      refineSection.style.display      = 'none';
+      refinedModelViewer.style.display = 'none';
+      refinedModelViewer.src           = '';
+      refineStatusEl.textContent       = '';
+      downloadRefineBtn.style.display  = 'none';
+    }
+  </script>
+</body>
+</html>
