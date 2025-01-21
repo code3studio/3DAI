@@ -186,46 +186,96 @@
       cursor: not-allowed;
     }
 
-    /* Footer Styling */
-    footer {
-      width: 100%;
-      background: #1a1a1a;
-      padding: 15px 30px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      border-top: 1px solid #333;
-      box-shadow: 0 -2px 4px rgba(0,0,0,0.5);
-    }
+   /* Updated Footer Styling */
+/* Footer Styling */
+footer {
+  width: 100%;
+  background: #1a1a1a;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between; /* Align left and right sections */
+  align-items: center;
+  border-top: 1px solid #333;
+  box-shadow: 0 -2px 4px rgba(0,0,0,0.5);
+  
+  /* Responsive Adjustment */
+  flex-wrap: wrap;
+}
 
-    footer .copy-button {
-      width: 100%;
-      max-width: 300px;
-      padding: 10px 20px;
-      background: #2a2a2a;
-      color: #ccc;
-      border: 1px solid #444;
-      border-radius: 4px;
-      font-size: 0.9em;
-      text-align: center;
-      cursor: pointer;
-      transition: background 0.3s, border-color 0.3s;
-      margin-bottom: 10px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
 
-    footer .copy-button:hover {
-      background: #3a3a3a;
-    }
+.footer-right {
+  display: flex;
+  gap: 20px; /* Space between links */
+}
 
-    footer .info-text {
-      color: #aaa;
-      font-size: 0.85em;
-      text-align: center;
-      max-width: 500px;
-    }
+.footer-right a {
+  display: flex;
+  align-items: center;
+  color: #ccc;
+  text-decoration: none;
+  transition: color 0.3s;
+  font-size: 0.9em; /* Adjust font size as needed */
+}
+
+.footer-right a:hover {
+  color: #fff;
+}
+
+.social-icon {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+  margin-right: 8px; /* Space between icon and text */
+}
+
+footer .copy-button {
+  width: auto; /* Adjust to content size */
+  max-width: none;
+  padding: 10px 20px;
+  background: #2a2a2a;
+  color: #ccc;
+  border: 1px solid #444;
+  border-radius: 4px;
+  font-size: 0.9em;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.3s, border-color 0.3s;
+  margin-bottom: 0; /* Remove bottom margin */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+footer .copy-button:hover {
+  background: #3a3a3a;
+}
+
+footer .info-text {
+  color: #aaa;
+  font-size: 0.85em;
+  text-align: left; /* Align text to the left */
+  max-width: none;
+  margin-top: 5px; /* Space between button and text */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .footer-right {
+    margin-top: 15px;
+  }
+}
+
+
 
     /* Responsive Design */
     @media (max-width: 600px) {
@@ -253,27 +303,20 @@
     <div class="logo">Renderly</div>
     <div class="social-links">
       <!-- Twitter Link - SVG Left Blank -->
-      <a href="https://twitter.com/yourtwitter" target="_blank" aria-label="Twitter">
-        <!-- Twitter SVG Icon Placeholder -->
-        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <!-- Placeholder Path -->
-          <path d=""></path>
-        </svg>
+      <a href="https://x.com/renderlydotfun" target="_blank" aria-label="Twitter">
+        <img src="x.svg" alt="Twitter" class="social-icon">
+      </a>      
+      
+      <a href="https://renderly.gitbook.io/renderly-docs" target="_blank" aria-label="Gitbook">
+        <img src="gitbook.svg" alt="Gitbook" class="social-icon">
       </a>
-      <!-- Telegram Link - SVG Left Blank -->
-      <a href="https://t.me/yourtelegram" target="_blank" aria-label="Telegram">
-        <!-- Telegram SVG Icon Placeholder -->
-        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <!-- Placeholder Path -->
-          <path d=""></path>
-        </svg>
-      </a>
+      
     </div>
   </header>
 
   <!-- Main App Container -->
   <div id="app-container">
-    <h1>Renderly: Premier Text-to-3D Agent</h1>
+    <h1>Renderly: Text-to-3D Agent</h1>
 
     <!-- Prompt Inputs -->
     <div>
@@ -338,11 +381,36 @@
 
   <!-- Footer Section -->
   <footer>
-    <button class="copy-button" id="copyPumpBtn">ca: comingsoon..........pump</button>
-    <div class="info-text">
-      This is the Renderly demo. Advanced features will be exclusive to qualifying holders.
+    <div class="footer-left">
+      <button class="copy-button" id="copyPumpBtn">ca: comingsoon..........pump</button>
+      <div class="info-text">
+        This is the Renderly demo. Advanced features will be exclusive to qualifying holders.
+      </div>
+    </div>
+    
+    <div class="footer-right">
+      <!-- X Link -->
+      <a href="https://x.com/renderlydotfun" target="_blank" aria-label="X">
+        <!-- X SVG Icon -->
+        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1227">
+          <path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z" fill="currentColor"/>
+        </svg>
+        X
+      </a>
+      
+      <!-- Docs Link -->
+      <a href="https://renderly.gitbook.io/renderly-docs" target="_blank" aria-label="Documentation">
+        <!-- Docs SVG Icon -->
+        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <!-- Replace with your Docs SVG path data (example: book icon) -->
+          <path d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 2v16h12V4H6zm2 2h8v2H8V6zm0 4h8v2H8V10zm0 4h8v2H8v-2z"></path>
+        </svg>
+        Docs
+      </a>
     </div>
   </footer>
+  
+  
 
   <script>
     // ============ DOM ELEMENTS ============
